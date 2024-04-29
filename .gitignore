@@ -1,0 +1,6 @@
+# Ignore directories named "data" or "training_data"
+data/
+training_data/
+
+# Ignore files ending with .pt
+*.pt
