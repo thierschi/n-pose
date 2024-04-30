@@ -1,8 +1,8 @@
 from convert_data import *
 from ultralytics import YOLO
 
-captures = get_captures_from_data('../first-training/data')
-labels = get_labels('../first-training/data')
+captures = get_captures_from_data('../data/data')
+labels = get_labels('../data/data')
 yaml_path = create_training_data('./training_data', captures, labels)
 
 
