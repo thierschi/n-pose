@@ -3,20 +3,7 @@ import json
 from dataclasses import dataclass
 from typing import List
 
-
-@dataclass(frozen=True)
-class RGBColor:
-    r: int
-    g: int
-    b: int
-
-
-@dataclass(frozen=True)
-class RGBAColor:
-    r: int
-    g: int
-    b: int
-    a: int
+from util.color import RGBAColor
 
 
 @dataclass(frozen=True)
