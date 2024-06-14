@@ -41,4 +41,4 @@ class RGBAColor:
                         for i in range(0, 3)])
         rgb *= 255
 
-        return RGBColor(rgb[0], rgb[1], rgb[2])
+        return RGBColor(int(rgb[0]), int(rgb[1]), int(rgb[2]))
