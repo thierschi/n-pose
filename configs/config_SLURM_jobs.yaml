@@ -1,0 +1,9 @@
+args:
+  time: 24:00:00
+  ntasks: 1
+  gres: gpu:a40:1
+  export: NONE
+  C: a40_40
+  job: salloc
+  
+  job: ./scripts/run.sh
