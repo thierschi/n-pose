@@ -1,6 +1,7 @@
 import os
 import shutil
 from pathlib import Path
+from typing import List
 
 import numpy as np
 
@@ -8,7 +9,7 @@ from import_data.unity_data import UnityData, UnityCapture
 
 
 # TODO Make code more readable and refactor
-# TODO Check outputs like -1e-05
+# TODO Check outputs like -1e-05 -> Test if YOLO cares
 
 def get_split(n: int, val: float, test: float):
     n_val = int(n * val)
@@ -40,8 +41,8 @@ def get_yolo_pose_annotations(capture: UnityCapture, precision: int = 6):
             continue
 
         for keypoint in keypoint_annotation.keypoints:
-            keypoint_x = round(keypoint.camera_cartesian_location[0] / img_width, precision)
-            keypoint_y = round(keypoint.camera_cartesian_location[1] / img_height, precision)
+            keypoint_x = round(keypoint.location[0] / img_width, precision)
+            keypoint_y = round(keypoint.location[1] / img_height, precision)
             keypoint_visible = keypoint.state
             keypoints.append(f"{keypoint_x} {keypoint_y} {keypoint_visible}")
 
@@ -50,14 +51,15 @@ def get_yolo_pose_annotations(capture: UnityCapture, precision: int = 6):
     return annotations
 
 
-def unity_to_yolo_pose(unity_data: UnityData, _path: str, include_test: bool = False, precision: int = 6):
+def unity_to_yolo_pose(unity_data: UnityData, _path: str, kpts: int, flip_idx: List[int], include_test: bool = False,
+                       precision: int = 6):
+    if len(flip_idx) != kpts:
+        raise Exception("Length of flip_idx must be equal to kpts")
+
     if _path[-1] == "/":
         _path = _path[:-1]
 
     name = _path.split("/")[-1]
-
-    if not name.isalnum():
-        raise Exception("Name contains illegal characters")
 
     if os.path.exists(_path) and not os.path.isdir(_path):
         raise Exception("Path is not a directory")
@@ -78,15 +80,17 @@ def unity_to_yolo_pose(unity_data: UnityData, _path: str, include_test: bool = F
 
     yaml_path = f"{_path}/{name}.yaml"
     with open(yaml_path, "w") as f:
-        f.write(f"path: {_path}\n")
+        f.write(f"path: {os.path.abspath(_path)}\n")
         f.write(f"train: train\n")
         f.write(f"val: val\n")
         if include_test:
             f.write(f"test: test\n")
 
-        f.write("\n")
+        f.write('\n')
+        f.write(f'kpt_shape: [{kpts},3]\n')
+        f.write(f'flip_idx: {flip_idx}\n')
 
-        f.write("names:")
+        f.write("names:\n")
         for label in unity_data.labels:
             f.write(f"    {label.id}: {label.name}\n")
 
@@ -104,3 +108,5 @@ def unity_to_yolo_pose(unity_data: UnityData, _path: str, include_test: bool = F
         with open(os.path.join(path.as_posix(), s, f'{i}.txt'), "w") as f:
             for annotation in annotations:
                 f.write(f"{annotation}\n")
+
+    return yaml_path
