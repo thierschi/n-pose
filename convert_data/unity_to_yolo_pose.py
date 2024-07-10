@@ -3,23 +3,12 @@ import shutil
 from pathlib import Path
 from typing import List
 
-import numpy as np
-
 from import_data.unity_data import UnityData, UnityCapture
+from util.split import get_split
 
 
 # TODO Make code more readable and refactor
 # TODO Check outputs like -1e-05 -> Test if YOLO cares
-
-def get_split(n: int, val: float, test: float):
-    n_val = int(n * val)
-    n_test = int(n * test)
-    n_train = n - n_val - n_test
-
-    split = np.array(["train"] * n_train + ["val"] * n_val + ["test"] * n_test)
-    np.random.shuffle(split)
-
-    return split
 
 
 def get_yolo_pose_annotations(capture: UnityCapture, precision: int = 6):
