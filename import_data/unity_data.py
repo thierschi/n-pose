@@ -7,7 +7,7 @@ from util.color import RGBAColor
 
 
 @dataclass(frozen=True)
-class Label:
+class UnityLabel:
     id: int
     unity_id: int
     name: str
@@ -16,11 +16,11 @@ class Label:
 @dataclass(frozen=True)
 class UnityInstanceSegmentationInstance:
     instance_id: int
-    label: Label
+    label: UnityLabel
     color: RGBAColor
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[UnityLabel]):
         label = None
         color = None
 
@@ -39,7 +39,9 @@ class UnityInstanceSegmentationInstance:
 
 
 @dataclass(frozen=True)
-class UnityInstanceSegmentation:
+class UnityInstanceSegmentationAnnotation:
+    type_name = 'type.unity.com/unity.solo.InstanceSegmentationAnnotation'
+
     id: str
     sensor_id: str
     description: str
@@ -49,26 +51,26 @@ class UnityInstanceSegmentation:
     instances: List[UnityInstanceSegmentationInstance]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label], path: str):
+    def from_dict(_dict: dict, labels: List[UnityLabel], path: str):
         instances = [UnityInstanceSegmentationInstance.from_dict(instance, labels) for instance in
                      _dict['instances']] if 'instances' in _dict else []
 
-        return UnityInstanceSegmentation(_dict['id'],
-                                         _dict['sensorId'],
-                                         _dict['description'],
-                                         _dict['imageFormat'],
-                                         _dict['dimension'],
-                                         path + '/' + _dict['filename'],
-                                         instances)
+        return UnityInstanceSegmentationAnnotation(_dict['id'],
+                                                   _dict['sensorId'],
+                                                   _dict['description'],
+                                                   _dict['imageFormat'],
+                                                   _dict['dimension'],
+                                                   path + '/' + _dict['filename'],
+                                                   instances)
 
 
 @dataclass(frozen=True)
 class UnitySemanticSegmentationInstance:
-    label: Label
+    label: UnityLabel
     color: RGBAColor
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[UnityLabel]):
         label = None
         color = None
 
@@ -87,7 +89,9 @@ class UnitySemanticSegmentationInstance:
 
 
 @dataclass(frozen=True)
-class UnitySemanticSegmentation:
+class UnitySemanticSegmentationAnnotation:
+    type_name = 'type.unity.com/unity.solo.SemanticSegmentationAnnotation'
+
     id: str
     sensor_id: str
     description: str
@@ -97,28 +101,28 @@ class UnitySemanticSegmentation:
     instances: List[UnitySemanticSegmentationInstance]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label], path: str):
+    def from_dict(_dict: dict, labels: List[UnityLabel], path: str):
         instances = [UnitySemanticSegmentationInstance.from_dict(instance, labels) for instance in
                      _dict['instances']] if 'instances' in _dict else []
 
-        return UnitySemanticSegmentation(_dict['id'],
-                                         _dict['sensorId'],
-                                         _dict['description'],
-                                         _dict['imageFormat'],
-                                         _dict['dimension'],
-                                         path + '/' + _dict['filename'],
-                                         instances)
+        return UnitySemanticSegmentationAnnotation(_dict['id'],
+                                                   _dict['sensorId'],
+                                                   _dict['description'],
+                                                   _dict['imageFormat'],
+                                                   _dict['dimension'],
+                                                   path + '/' + _dict['filename'],
+                                                   instances)
 
 
 @dataclass(frozen=True)
 class Unity2DBoundingBoxValue:
     instance_id: int
-    label: Label
+    label: UnityLabel
     origin: List[float]
     dimension: List[float]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[UnityLabel]):
         label = None
 
         for label in labels:
@@ -133,25 +137,29 @@ class Unity2DBoundingBoxValue:
 
 
 @dataclass(frozen=True)
-class Unity2DBoundingBox:
+class Unity2DBoundingBoxAnnotation:
+    type_name = 'type.unity.com/unity.solo.BoundingBox2DAnnotation'
+
     id: str
     sensor_id: str
     description: str
     values: List[Unity2DBoundingBoxValue]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[UnityLabel]):
         values = [Unity2DBoundingBoxValue.from_dict(value, labels) for value in
                   _dict['values']] if 'values' in _dict else []
 
-        return Unity2DBoundingBox(_dict['id'],
-                                  _dict['sensorId'],
-                                  _dict['description'],
-                                  values)
+        return Unity2DBoundingBoxAnnotation(_dict['id'],
+                                            _dict['sensorId'],
+                                            _dict['description'],
+                                            values)
 
 
 @dataclass(frozen=True)
-class UnityDepth:
+class UnityDepthAnnotation:
+    type_name = 'type.unity.com/unity.solo.DepthAnnotation'
+
     sensor_id: str
     description: str
     measurement_strategy: str
@@ -161,18 +169,18 @@ class UnityDepth:
 
     @staticmethod
     def from_dict(_dict: dict, path: str):
-        return UnityDepth(_dict['sensorId'],
-                          _dict['description'],
-                          _dict['measurementStrategy'],
-                          _dict['imageFormat'],
-                          _dict['dimension'],
-                          path + '/' + _dict['filename'])
+        return UnityDepthAnnotation(_dict['sensorId'],
+                                    _dict['description'],
+                                    _dict['measurementStrategy'],
+                                    _dict['imageFormat'],
+                                    _dict['dimension'],
+                                    path + '/' + _dict['filename'])
 
 
 @dataclass(frozen=True)
 class Unity3DBoundingBoxValue:
     instance_id: int
-    label: Label
+    label: UnityLabel
     translation: List[float]
     size: List[float]
     rotation: List[float]
@@ -180,7 +188,7 @@ class Unity3DBoundingBoxValue:
     acceleration: List[float]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[UnityLabel]):
         label = None
 
         for label in labels:
@@ -198,21 +206,84 @@ class Unity3DBoundingBoxValue:
 
 
 @dataclass(frozen=True)
-class Unity3DBoundingBox:
+class Unity3DBoundingBoxAnnotation:
+    type_name = 'type.unity.com/unity.solo.BoundingBox3DAnnotation'
+
     id: str
     sensor_id: str
     description: str
     values: List[Unity3DBoundingBoxValue]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[UnityLabel]):
         values = [Unity3DBoundingBoxValue.from_dict(value, labels) for value in
                   _dict['values']] if 'values' in _dict else []
 
-        return Unity3DBoundingBox(_dict['id'],
-                                  _dict['sensorId'],
-                                  _dict['description'],
-                                  values)
+        return Unity3DBoundingBoxAnnotation(_dict['id'],
+                                            _dict['sensorId'],
+                                            _dict['description'],
+                                            values)
+
+
+@dataclass
+class UnityKeypoint:
+    index: int
+    location: List[float]
+    camera_cartesian_location: List[float]
+    state: int
+
+    @staticmethod
+    def from_dict(_dict: dict):
+        return UnityKeypoint(_dict['index'],
+                             _dict['location'],
+                             _dict['cameraCartesianLocation'],
+                             _dict['state'])
+
+
+@dataclass
+class UnityKeypointValue:
+    instance_id: int
+    label: UnityLabel
+    pose: str
+    keypoints: List[UnityKeypoint]
+
+    @staticmethod
+    def from_dict(_dict: dict, labels: List[UnityLabel]):
+        label = None
+
+        for label in labels:
+            if label.unity_id == _dict['labelId']:
+                label = label
+                break
+
+        keypoints = [UnityKeypoint.from_dict(keypoint) for keypoint in _dict['keypoints']]
+
+        return UnityKeypointValue(_dict['instanceId'],
+                                  label,
+                                  _dict['pose'],
+                                  keypoints)
+
+
+@dataclass
+class UnityKeypointAnnotation:
+    type_name = 'type.unity.com/unity.solo.KeypointAnnotation'
+
+    id: str
+    sensor_id: str
+    description: str
+    template_id: str
+    values: List[UnityKeypointValue]
+
+    @staticmethod
+    def from_dict(_dict: dict, labels: List[UnityLabel]):
+        values = [UnityKeypointValue.from_dict(value, labels) for value in
+                  _dict['values']] if 'values' in _dict else []
+
+        return UnityKeypointAnnotation(_dict['id'],
+                                       _dict['sensorId'],
+                                       _dict['description'],
+                                       _dict['templateId'],
+                                       values)
 
 
 @dataclass(frozen=True)
@@ -229,30 +300,35 @@ class UnityCapture:
     dimension: List[float]
     projection: str
     matrix: List[float]
-    instance_segmentation: UnityInstanceSegmentation
-    semantic_segmentation: UnitySemanticSegmentation
-    bounding_boxes_2d: Unity2DBoundingBox
-    bounding_boxes_3d: Unity3DBoundingBox
-    depth: UnityDepth
+    instance_segmentation: UnityInstanceSegmentationAnnotation
+    semantic_segmentation: UnitySemanticSegmentationAnnotation
+    bounding_boxes_2d: Unity2DBoundingBoxAnnotation
+    bounding_boxes_3d: Unity3DBoundingBoxAnnotation
+    depth: UnityDepthAnnotation
+    keypoints: UnityKeypointAnnotation
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[UnityLabel]):
         path = _dict['path']
         annotations = {}
 
         for annotation in _dict['annotations']:
-            annotations[annotation['@type'].split('/')[-1]] = annotation
+            annotations[annotation['@type']] = annotation
 
-        instance_segmentation = None if 'unity.solo.InstanceSegmentationAnnotation' not in annotations else \
-            UnityInstanceSegmentation.from_dict(annotations['unity.solo.InstanceSegmentationAnnotation'], labels, path)
-        semantic_segmentation = None if 'unity.solo.SemanticSegmentationAnnotation' not in annotations else \
-            UnitySemanticSegmentation.from_dict(annotations['unity.solo.SemanticSegmentationAnnotation'], labels, path)
-        bounding_boxes_2d = None if 'unity.solo.BoundingBox2DAnnotation' not in annotations else \
-            Unity2DBoundingBox.from_dict(annotations['unity.solo.BoundingBox2DAnnotation'], labels)
-        bounding_boxes_3d = None if 'unity.solo.BoundingBox3DAnnotation' not in annotations else \
-            Unity3DBoundingBox.from_dict(annotations['unity.solo.BoundingBox3DAnnotation'], labels)
-        depth = None if 'unity.solo.DepthAnnotation' not in annotations else \
-            UnityDepth.from_dict(annotations['unity.solo.DepthAnnotation'], path)
+        instance_segmentation = None if UnityInstanceSegmentationAnnotation.type_name not in annotations else \
+            UnityInstanceSegmentationAnnotation.from_dict(annotations[UnityInstanceSegmentationAnnotation.type_name],
+                                                          labels, path)
+        semantic_segmentation = None if UnitySemanticSegmentationAnnotation.type_name not in annotations else \
+            UnitySemanticSegmentationAnnotation.from_dict(annotations[UnitySemanticSegmentationAnnotation.type_name],
+                                                          labels, path)
+        bounding_boxes_2d = None if Unity2DBoundingBoxAnnotation.type_name not in annotations else \
+            Unity2DBoundingBoxAnnotation.from_dict(annotations[Unity2DBoundingBoxAnnotation.type_name], labels)
+        bounding_boxes_3d = None if Unity3DBoundingBoxAnnotation.type_name not in annotations else \
+            Unity3DBoundingBoxAnnotation.from_dict(annotations[Unity3DBoundingBoxAnnotation.type_name], labels)
+        depth = None if UnityDepthAnnotation.type_name not in annotations else \
+            UnityDepthAnnotation.from_dict(annotations[UnityDepthAnnotation.type_name], path)
+        keypoints = None if UnityKeypointAnnotation.type_name not in annotations else \
+            UnityKeypointAnnotation.from_dict(annotations[UnityKeypointAnnotation.type_name], labels)
 
         return UnityCapture(_dict['id'],
                             int(path.split('/')[-1].split('.')[-1]),
@@ -270,12 +346,13 @@ class UnityCapture:
                             semantic_segmentation,
                             bounding_boxes_2d,
                             bounding_boxes_3d,
-                            depth)
+                            depth,
+                            keypoints)
 
 
 class UnityData:
     data_path: str
-    labels: List[Label]
+    labels: List[UnityLabel]
     captures: List[UnityCapture]
 
     def read_labels(self):
@@ -297,7 +374,7 @@ class UnityData:
 
                 # If no label with name exists, create a label
                 if not any(label.name == spec['label_name'] for label in labels):
-                    labels.append(Label(counter, spec['label_id'], spec['label_name']))
+                    labels.append(UnityLabel(counter, spec['label_id'], spec['label_name']))
                     counter += 1
 
         self.labels = labels

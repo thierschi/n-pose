@@ -5,3 +5,10 @@ playground/
 
 # Ignore files ending with .pt
 *.pt
+
+
+# Ignore pycache
+__pycache__
+
+# Ignore Slurm Outputs
+*.o*

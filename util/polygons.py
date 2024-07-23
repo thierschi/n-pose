@@ -42,3 +42,63 @@ def get_colored_polygons_from_mask(mask: cv2.typing.MatLike, color: RGBColor | R
     mask = cv2.inRange(mask, bgr, bgr)
 
     return get_polygons_from_mask(mask, precision)
+
+
+def get_polygon_boundary(polygon: Polygon):
+    return polygon.boundary.coords.xy[0], polygon.boundary.coords.xy[1]
+
+
+def simplify_polygon(poly: Polygon, target: int = 50, tolerance: float = 1e-10):
+    x, _ = get_polygon_boundary(poly)
+    if len(x) <= target:
+        return poly
+
+    low, high = 1e-9, 1.0
+    best = poly
+
+    while low <= high:
+        mid = (low + high) / 2
+        simp = poly.simplify(mid, preserve_topology=True)
+        x, _ = get_polygon_boundary(simp)
+        bound_len = len(x)
+
+        if bound_len == target:
+            return simp
+        elif bound_len <= target:
+            best = simp
+            high = mid - tolerance
+        else:
+            low = mid + tolerance
+
+    return best
+
+
+def simplify_polygon_group(polygons: list[Polygon], target: int = 50, tolerance: float = 1e-10):
+    collected_bound = []
+    for p in polygons:
+        x, y = get_polygon_boundary(p)
+        collected_bound.extend([(x[i], y[i]) for i in range(len(x))])
+
+    collected_poly = Polygon(collected_bound)
+
+    return simplify_polygon(collected_poly, target=target, tolerance=tolerance)
+
+# def simplify_polygon_group(polygons: list[Polygon], target: int = 50, tolerance: float = 1e-9, min_target: int = 5):
+#     lengths = [len(get_polygon_boundary(p)[0]) for p in polygons]
+#     total = sum(lengths)
+#     ratios = [l / total for l in lengths]
+#     targets = [round(r * target) for r in ratios]
+#
+#     for i in range(len(targets)):
+#         try:
+#             if targets[i] < min_target:
+#                 tmp = targets[i]
+#                 targets.remove(tmp)
+#                 del polygons[i]
+#                 smallest = min(targets)
+#                 smallest_index = targets.index(smallest)
+#                 targets[smallest_index] += tmp
+#         except IndexError:
+#             continue
+#
+#     return [simplify_polygon(polygons[i], target=targets[i], tolerance=tolerance) for i in range(len(polygons))]
