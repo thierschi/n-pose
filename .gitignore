@@ -1,5 +1,5 @@
-# Ignore directories named "data" or "training_data"
-data/
+# Ignore directories named "training_data" or "training_data"
+training_data/
 logs/
 playground/
 

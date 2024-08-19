@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def get_split(n: int, val: float, test: float):
+def generate_random_split(n: int, val: float, test: float):
     n_val = int(n * val)
     n_test = int(n * test)
     n_train = n - n_val - n_test

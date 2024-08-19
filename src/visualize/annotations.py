@@ -1,16 +1,16 @@
 import cv2
 
-from import_data.unity_data import UnityCapture, Unity2DBoundingBoxValue, UnityKeypointValue
+from data.unity_data import Capture, BoundingBox2DValue, KeypointValue
 
 
-def draw_capture_info(img: cv2.typing.MatLike, capture: UnityCapture):
+def draw_capture_info(img: cv2.typing.MatLike, capture: Capture):
     cv2.putText(img, f"Sequence {capture.sequence} - ID {capture.id}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
                 (255, 255, 255), 2)
 
     return img
 
 
-def draw_bounding_box(img: cv2.typing.MatLike, bounding_box: Unity2DBoundingBoxValue):
+def draw_bounding_box(img: cv2.typing.MatLike, bounding_box: BoundingBox2DValue):
     x = int(bounding_box.origin[0])
     y = int(bounding_box.origin[1])
     w = int(bounding_box.dimension[0])
@@ -23,7 +23,7 @@ def draw_bounding_box(img: cv2.typing.MatLike, bounding_box: Unity2DBoundingBoxV
     return img
 
 
-def draw_keypoint_value(img: cv2.typing.MatLike, capture: UnityCapture, keypoint_value: UnityKeypointValue):
+def draw_keypoint_value(img: cv2.typing.MatLike, capture: Capture, keypoint_value: KeypointValue):
     keypoints = keypoint_value.keypoints
     for keypoint in keypoints:
         location = keypoint.location
