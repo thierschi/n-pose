@@ -69,10 +69,10 @@ def unity_to_yolo_pose(unity_data: UnityData, _path: str, kpts: int, flip_idx: L
             capture = valid_captures[i]
 
             shutil.copyfile(capture.file_path,
-                            os.path.join(path.as_posix(), s, f'{i}.{capture.file_path.split(".")[-1]}'))
+                            os.path.join(path, s, f'{i}.{capture.file_path.split(".")[-1]}'))
 
             annotations = get_pose_annotations_for_capture(capture)
-            with open(os.path.join(path.as_posix(), s, f'{i}.txt'), "w") as f:
+            with open(os.path.join(path, s, f'{i}.txt'), "w") as f:
                 for annotation in annotations:
                     f.write(f"{annotation}\n")
 
