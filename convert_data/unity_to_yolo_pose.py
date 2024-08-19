@@ -32,7 +32,7 @@ def get_yolo_pose_annotations(capture: UnityCapture, precision: int = 6):
         for keypoint in keypoint_annotation.keypoints:
             keypoint_x = round(keypoint.location[0] / img_width, precision)
             keypoint_y = round(keypoint.location[1] / img_height, precision)
-            keypoint_visible = keypoint.state
+            keypoint_visible = keypoint.state  # TODO Fixme 0 is not existing, 1 not visible, 2 visible
             keypoints.append(f"{keypoint_x} {keypoint_y} {keypoint_visible}")
 
         annotations.append(f"{bounding_box.label.id} {center_x} {center_y} {width} {height} {' '.join(keypoints)}")
