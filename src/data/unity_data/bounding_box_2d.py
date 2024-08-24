@@ -51,3 +51,6 @@ class BoundingBox2DAnnotation:
         if len(item) == 0:
             return None
         return item[0]
+
+    def ids(self):
+        return [v.instance_id for v in self.values]
