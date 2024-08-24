@@ -63,3 +63,10 @@ class KeypointAnnotation:
                                   _dict['description'],
                                   _dict['templateId'],
                                   values)
+
+    def __getitem__(self, _id):
+        item = [v for v in self.values if v.instance_id == _id]
+
+        if len(item) == 0:
+            return None
+        return item[0]

@@ -54,3 +54,10 @@ class InstanceSegmentationAnnotation:
                                               _dict['dimension'],
                                               path + '/' + _dict['filename'],
                                               instances)
+
+    def __getitem__(self, _id):
+        item = [v for v in self.instances if v.instance_id == _id]
+
+        if len(item) == 0:
+            return None
+        return item[0]
