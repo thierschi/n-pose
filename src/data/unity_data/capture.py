@@ -8,6 +8,7 @@ from .instance_segmentation import InstanceSegmentationAnnotation
 from .keypoint import KeypointAnnotation
 from .label import Label
 from .semantic_segmentation import SemanticSegmentationAnnotation
+from .transform import TransformAnnotation
 
 
 @dataclass(frozen=True)
@@ -30,6 +31,7 @@ class Capture:
     bounding_boxes_3d: BoundingBox3DAnnotation
     depth: DepthAnnotation
     keypoints: KeypointAnnotation
+    transforms: TransformAnnotation
 
     @staticmethod
     def from_dict(_dict: dict, labels: List[Label]):
@@ -53,6 +55,8 @@ class Capture:
             DepthAnnotation.from_dict(annotations[DepthAnnotation.type_name], path)
         keypoints = None if KeypointAnnotation.type_name not in annotations else \
             KeypointAnnotation.from_dict(annotations[KeypointAnnotation.type_name], labels)
+        transforms = None if TransformAnnotation.type_name not in annotations else \
+            TransformAnnotation.from_dict(annotations[TransformAnnotation.type_name])
 
         return Capture(_dict['id'],
                        int(path.split('/')[-1].split('.')[-1]),
@@ -71,4 +75,5 @@ class Capture:
                        bounding_boxes_2d,
                        bounding_boxes_3d,
                        depth,
-                       keypoints)
+                       keypoints,
+                       transforms)
