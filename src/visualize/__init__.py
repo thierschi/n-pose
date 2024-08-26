@@ -1,1 +1,1 @@
-from .annotator import Annotator
+from .annotator import Annotator, CoordType

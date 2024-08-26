@@ -59,3 +59,6 @@ class UnityData:
         self.data_path = data_path[:-1] if data_path.endswith('/') else data_path
         self.read_labels()
         self.read_captures()
+
+    def get_sequence(self, sequence: int):
+        return [capture for capture in self.captures if capture.sequence == sequence]

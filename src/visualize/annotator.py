@@ -51,6 +51,7 @@ class Annotator:
     __projection_matrix = None
     __color_generator = ColorGenerator()
     __instance_colors = {}
+    __num_infos = 0
 
     def __init__(self, capture: Capture):
         self.__capture = capture
@@ -134,7 +135,8 @@ class Annotator:
         return self
 
     def additional_info(self, info):
-        cv2.putText(self.__img, info, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        self.__num_infos += 1
+        cv2.putText(self.__img, info, (10, 30 + self.__num_infos * 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
                     (255, 255, 255), 2)
 
         return self
