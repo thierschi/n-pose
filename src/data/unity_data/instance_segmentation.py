@@ -63,4 +63,4 @@ class InstanceSegmentationAnnotation:
         return item[0]
 
     def ids(self):
-        return [v.instance_id for v in self.values]
+        return [v.instance_id for v in self.instances]
