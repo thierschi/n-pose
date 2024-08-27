@@ -263,22 +263,20 @@ class Annotator:
                radius=5,
                thickness=2):
         for point in points:
-            self.point(point, point_type, self.__ensure_color(instance_id, color), radius)
+            self.point(point, point_type, instance_id, color, radius)
 
         if connect:
             for i in range(len(points) - 1):
                 start = self.__convert_point(points[i], point_type)
                 end = self.__convert_point(points[i + 1], point_type)
-                cv2.line(self.__img, tuple(start), tuple(end), color, thickness)
+                cv2.line(self.__img, tuple(start), tuple(end), self.__ensure_color(instance_id, color), thickness)
 
         return self
 
     def polygons(self, polygons: List[Polygon], point_type: CoordType = CoordType.CAM, instance_id=None, color=None,
                  thickness=2):
         for polygon in polygons:
-            bound_x, bound_y = polygon.boundary.coords.xy[0], polygon.boundary.coords.xy[1]
-            points = [(x, y) for x, y in zip(bound_x, bound_y)]
-            points = [self.__convert_point(point, point_type) for point in points]
+            points = np.array(polygon.boundary.coords.xy).T.astype(int)
 
             for i in range(len(points) - 1):
                 start = points[i]
