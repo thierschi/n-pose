@@ -1,17 +1,15 @@
 import os
 import shutil
-from pathlib import Path
 from typing import List
 
-from import_data.unity_data import UnityData, UnityCapture
-from util.split import get_split
+from progressbar import ProgressBar
+
+from data.unity_data import Capture, UnityData
+from util import generate_random_split
+from .data_directory import create_yolo_data_dir
 
 
-# TODO Make code more readable and refactor
-# TODO Check outputs like -1e-05 -> Test if YOLO cares
-
-
-def get_yolo_pose_annotations(capture: UnityCapture, precision: int = 6):
+def get_pose_annotations_for_capture(capture: Capture, precision: int = 6):
     annotations = []
     img_width = capture.dimension[0]
     img_height = capture.dimension[1]
@@ -32,7 +30,7 @@ def get_yolo_pose_annotations(capture: UnityCapture, precision: int = 6):
         for keypoint in keypoint_annotation.keypoints:
             keypoint_x = round(keypoint.location[0] / img_width, precision)
             keypoint_y = round(keypoint.location[1] / img_height, precision)
-            keypoint_visible = keypoint.state
+            keypoint_visible = 1 if keypoint.state == 2 else 0
             keypoints.append(f"{keypoint_x} {keypoint_y} {keypoint_visible}")
 
         annotations.append(f"{bounding_box.label.id} {center_x} {center_y} {width} {height} {' '.join(keypoints)}")
@@ -42,32 +40,8 @@ def get_yolo_pose_annotations(capture: UnityCapture, precision: int = 6):
 
 def unity_to_yolo_pose(unity_data: UnityData, _path: str, kpts: int, flip_idx: List[int], include_test: bool = False,
                        precision: int = 6):
-    if len(flip_idx) != kpts:
-        raise Exception("Length of flip_idx must be equal to kpts")
+    path, yaml_path = create_yolo_data_dir(_path, include_test)
 
-    if _path[-1] == "/":
-        _path = _path[:-1]
-
-    name = _path.split("/")[-1]
-
-    if os.path.exists(_path) and not os.path.isdir(_path):
-        raise Exception("Path is not a directory")
-
-    if os.path.exists(_path):
-        i = 1
-        while os.path.exists(f"{_path}_{i}"):
-            i += 1
-        _path = f"{_path}_{i}"
-
-    path = Path(_path)
-    path.mkdir(parents=True)
-
-    os.mkdir(f"{_path}/train")
-    os.mkdir(f"{_path}/val")
-    if include_test:
-        os.mkdir(f"{_path}/test")
-
-    yaml_path = f"{_path}/{name}.yaml"
     with open(yaml_path, "w") as f:
         f.write(f"path: {os.path.abspath(_path)}\n")
         f.write(f"train: train\n")
@@ -86,16 +60,20 @@ def unity_to_yolo_pose(unity_data: UnityData, _path: str, kpts: int, flip_idx: L
     valid_captures = [capture for capture in unity_data.captures if
                       capture.bounding_boxes_2d is not None and capture.keypoints is not None]
 
-    split = get_split(len(valid_captures), 0.1, 0.1 if include_test else 0.0)
+    split = generate_random_split(len(valid_captures), 0.1, 0.1 if include_test else 0.0)
 
-    for i, s in enumerate(split):
-        capture = valid_captures[i]
+    with ProgressBar(max_value=len(split)) as bar:
+        for i, s in enumerate(split):
+            bar.update(i)
 
-        shutil.copyfile(capture.file_path, os.path.join(path.as_posix(), s, f'{i}.{capture.file_path.split(".")[-1]}'))
+            capture = valid_captures[i]
 
-        annotations = get_yolo_pose_annotations(capture)
-        with open(os.path.join(path.as_posix(), s, f'{i}.txt'), "w") as f:
-            for annotation in annotations:
-                f.write(f"{annotation}\n")
+            shutil.copyfile(capture.file_path,
+                            os.path.join(path, s, f'{i}.{capture.file_path.split(".")[-1]}'))
+
+            annotations = get_pose_annotations_for_capture(capture)
+            with open(os.path.join(path, s, f'{i}.txt'), "w") as f:
+                for annotation in annotations:
+                    f.write(f"{annotation}\n")
 
     return yaml_path

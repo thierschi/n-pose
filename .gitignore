@@ -1,7 +1,8 @@
-# Ignore directories named "data" or "training_data"
-data/
-logs/
-playground/
+# Ignore directories named "data" or "data"
+/data/
+/logs/
+/playground/
+/models/
 
 # Ignore files ending with .pt
 *.pt
