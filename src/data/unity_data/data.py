@@ -1,6 +1,6 @@
 import glob
 import json
-from typing import List
+from typing import List, Dict
 
 from .capture import Capture
 from .label import Label
@@ -9,7 +9,7 @@ from .label import Label
 class UnityData:
     data_path: str
     labels: List[Label]
-    captures: List[Capture]
+    sequences: Dict[int, List[Capture]]
 
     def read_labels(self):
         with open(f"{self.data_path}/annotation_definitions.json") as f:
@@ -53,12 +53,30 @@ class UnityData:
                     capture['path'] = '/'.join(file.split('/')[:-1])
                     captures.append(capture)
 
-        self.captures = [Capture.from_dict(capture, self.labels) for capture in captures]
+        self.sequences = {}
+        for capture in captures:
+            c = Capture.from_dict(capture, self.labels)
+
+            if c.sequence not in self.sequences:
+                self.sequences[c.sequence] = []
+            self.sequences[c.sequence].append(c)
 
     def __init__(self, data_path: str):
         self.data_path = data_path[:-1] if data_path.endswith('/') else data_path
         self.read_labels()
         self.read_captures()
 
+    @property
+    def len_sequences(self):
+        return len(self.sequences)
+
+    @property
+    def sequence_ids(self):
+        return list(self.sequences.keys())
+
     def get_sequence(self, sequence: int):
-        return [capture for capture in self.captures if capture.sequence == sequence]
+        return self.sequences[sequence]
+
+    @property
+    def captures(self):
+        return [capture for sequence in self.sequences.values() for capture in sequence]
