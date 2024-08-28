@@ -1,14 +1,13 @@
 from pathlib import Path
 
-import cv2
 from progressbar import ProgressBar
 
 from data.unity_data import UnityData
 from .annotation_conversion import *
 
 
-def unity_to_n_pose(data: UnityData, folder_path: str, file_name: str, kp_vector_size: int,
-                    seg_vector_size: int, precision=6):
+def DEPRECATED_unity_to_n_pose(data: UnityData, folder_path: str, file_name: str, kp_vector_size: int,
+                               seg_vector_size: int, precision=6):
     assert kp_vector_size % 2 == 0
     assert seg_vector_size % 2 == 0
 
