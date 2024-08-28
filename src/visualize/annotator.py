@@ -48,30 +48,42 @@ class ColorGenerator:
 
 class Annotator:
     __DEFAULT_COLOR = (255, 0, 0)
-    __projection_matrix = None
-    __color_generator = ColorGenerator()
-    __instance_colors = {}
-    __num_infos = 0
 
     def __init__(self, capture: Capture):
         self.__capture = capture
         self.__img = cv2.imread(capture.file_path)
+        self.__projection_matrix = None
+        self.__color_generator = ColorGenerator()
+        self.__instance_colors = {}
+        self.__num_infos = 0
+
         self.__init_projection_matrix()
 
     def __init_projection_matrix(self):
         if self.__capture.keypoints is None or len(self.__capture.keypoints.values) == 0:
-            return self
+            return
 
         camera_points = []
         image_points = []
         for kpv in self.__capture.keypoints.values:
             for kp in kpv.keypoints:
+                if (np.all([p == 0 for p in kp.camera_cartesian_location])
+                        and np.all([p == 0 for p in kp.location])):
+                    continue
+
                 camera_points.append(
                     np.array(
                         [kp.camera_cartesian_location[0], kp.camera_cartesian_location[1],
                          kp.camera_cartesian_location[2],
                          1]))
                 image_points.append(np.array([int(kp.location[0]), int(kp.location[1])]))
+
+        if len(camera_points) == 0 or len(image_points) == 0:
+            self.__projection_matrix = np.ones((3, 4))
+            cv2.putText(self.__img, "Too few keypoints for projection", (10, self.__img.shape[0] - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            return
+
         camera_points = np.array(camera_points)
         image_points = np.array(image_points)
 
@@ -93,8 +105,6 @@ class Annotator:
         m_projection = np.append(m_projection, 1).reshape(3, 4)
 
         self.__projection_matrix = m_projection
-
-        return self
 
     def __project_point(self, point):
         point = np.array(point)
