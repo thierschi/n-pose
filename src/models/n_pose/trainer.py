@@ -62,7 +62,7 @@ class Trainer:
 
             # Invoke callback with training values
             if self.callback:
-                self.callback([avg_train_loss, avg_test_loss] + train_metrics + val_metrics)
+                self.callback([epoch, avg_train_loss, avg_test_loss] + train_metrics + val_metrics)
 
     def evaluate(self, criterion):
         self.model.eval()
