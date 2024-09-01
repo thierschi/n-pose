@@ -16,6 +16,9 @@ class ATE:
         self.count = 0
 
     def update(self, predicted, ground_truth):
+        # Consider only the first three elements
+        predicted = predicted[:, :3]
+        ground_truth = ground_truth[:, :3]
         error = torch.norm(predicted - ground_truth, dim=1).sum().item()
         self.total_error += error
         self.count += predicted.size(0)
