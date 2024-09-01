@@ -8,7 +8,8 @@ class AOE:
     total_error: float
     count: int
 
-    def __init__(self):
+    def __init__(self, added_direction: bool = False):
+        self.added_direction = added_direction
         self.reset()
 
     def reset(self):
@@ -19,6 +20,10 @@ class AOE:
         # Consider only the last three elements
         predicted = predicted[:, -3:]
         ground_truth = ground_truth[:, -3:]
+
+        if self.added_direction:
+            predicted = predicted[:, 3:] - predicted[:, :3]
+            ground_truth = ground_truth[:, 3:] - ground_truth[:, :3]
 
         # Normalize the vectors
         predicted = predicted / torch.norm(predicted, dim=1, keepdim=True)

@@ -1,10 +1,18 @@
+from typing import List
+
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 
 
 class SoloData(Dataset):
-    def __init__(self, xy, add_direction=False):
+    def __init__(self, xy: np.ndarray, vec_sizes: List[int], add_direction=False):
+        assert len(vec_sizes) == 2
+        assert 2 + 6 + vec_sizes[0] + vec_sizes[1] == xy.shape[1]
+
+        xy = xy[:, 2:]
+        xy = xy.astype(np.float32)
+
         self.x = torch.from_numpy(xy[:, 6:])
 
         y = xy[:, :6]
@@ -18,7 +26,6 @@ class SoloData(Dataset):
             y = np.array(new_y)
 
         self.y = torch.from_numpy(y)
-        # self.y = torch.from_numpy(xy[:, :6])
         self.n_samples = xy.shape[0]
 
     def __len__(self):
