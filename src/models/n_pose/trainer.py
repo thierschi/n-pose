@@ -84,6 +84,26 @@ class Trainer:
         val_metrics = [metric.compute() for metric in val_metrics]
         return avg_test_loss, val_metrics
 
+    def evaluate_with_loader(self, data_loader, criterion):
+        self.model.eval()
+        test_loss = 0.0
+        val_metrics = [metric.__class__() for metric in self.metrics]  # Create new instances for validation metrics
+
+        with torch.no_grad():
+            for inputs, targets in data_loader:
+                inputs, targets = inputs.to(self.device), targets.to(self.device)
+                outputs = self.model(inputs)
+                loss = criterion(outputs, targets)
+                test_loss += loss.item()
+
+                # Update validation metrics
+                for metric in val_metrics:
+                    metric.update(outputs, targets)
+
+        avg_test_loss = test_loss / len(data_loader)
+        val_metrics = [metric.compute() for metric in val_metrics]
+        return avg_test_loss, val_metrics
+
     def save(self, file_path):
         directory = os.path.dirname(file_path)
         if not os.path.exists(directory):
