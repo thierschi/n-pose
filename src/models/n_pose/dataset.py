@@ -8,7 +8,7 @@ from torch.utils.data import Dataset
 class SoloData(Dataset):
     def __init__(self, xy: np.ndarray, vec_sizes: List[int], add_direction=False):
         assert len(vec_sizes) == 2
-        assert 2 + 6 + vec_sizes[0] + vec_sizes[1] == xy.shape[1]
+        assert 2 + 6 + vec_sizes[0] * 2 + vec_sizes[1] * 2 == xy.shape[1]
 
         xy = xy[:, 2:]
         xy = xy.astype(np.float32)
