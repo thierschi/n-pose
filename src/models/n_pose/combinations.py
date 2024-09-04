@@ -13,7 +13,7 @@ EPOCHS = [50, 100, 250]
 def get_losses():
     losses = []
     losses.append((nn.MSELoss, {}, 'MSELoss'))
-    losses.append((nn.L1Loss, {}, 'L1Loss'))
+    # losses.append((nn.L1Loss, {}, 'L1Loss'))
     losses.append((RMSELoss, {}, 'RMSELoss'))
 
     losses.append(
