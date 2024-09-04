@@ -1,7 +1,7 @@
 from typing import List
 
 import numpy as np
-from torch import DataLoader
+from torch.utils.data import DataLoader
 
 from util import Logger, TrainingResult, EpochLogEntry
 from .dataset import SoloData
@@ -35,6 +35,7 @@ class CombinationTrainer:
             self.value_count = 0
 
             trainer = Trainer(model, train_data_loader, test_data_loader, metrics, self.log_epoch_callback)
+            trainer.use_best_device()
             self.logger.start_training(config.get_config())
 
             trainer.train(config.epochs, loss_fn, optimizer, scheduler)

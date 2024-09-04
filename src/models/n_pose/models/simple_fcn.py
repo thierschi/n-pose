@@ -1,18 +1,11 @@
 import torch.nn as nn
 
+from .custom_fcn import CustomFCN
 
-class SimpleFCN(nn.Module):
-    def __init__(self, input_size, activation_fn=nn.ReLU, **activation_params):
-        super(SimpleFCN, self).__init__()
-        self.model = nn.Sequential(
-            nn.Linear(input_size, input_size // 2),
-            activation_fn(**activation_params),
-            nn.Linear(input_size // 2, 256),
-            activation_fn(**activation_params),
-            nn.Linear(256, 128),
-            activation_fn(**activation_params),
-            nn.Linear(128, 6)  # Output layer
-        )
 
-    def forward(self, x):
-        return self.model(x)
+class SimpleFCN(CustomFCN):
+    def __init__(self, input_size: int, activation_fn=nn.ReLU, activation_params=None, inter_layer_module=None,
+                 inter_layer_params=None, inter_layer_indices=None):
+        layer_sizes = [input_size, input_size // 2, 256, 128, 6]
+        super(SimpleFCN, self).__init__(layer_sizes, activation_fn, activation_params, inter_layer_module,
+                                        inter_layer_params, inter_layer_indices)

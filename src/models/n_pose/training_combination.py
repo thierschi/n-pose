@@ -1,4 +1,4 @@
-from typing import Type, Dict, Any, List
+from typing import Type, Dict, Any, List, Optional
 
 import numpy as np
 import torch.nn as nn
@@ -22,11 +22,11 @@ class TrainingCombination:
                  optimizer_class: Type[optim.Optimizer],
                  optimizer_params: Dict[str, Any],
                  optimizer_desc: str,
-                 scheduler_class: Type[LRScheduler],
-                 scheduler_params: Dict[str, Any],
-                 scheduler_desc: str,
                  epochs: int,
                  batch_size: int,
+                 scheduler_class: Optional[Type[LRScheduler]] = None,
+                 scheduler_params: Optional[Dict[str, Any]] = None,
+                 scheduler_desc: str = "",
                  other: str = ""):
         self.data_size = data_size
         self.add_direction = add_direction
@@ -64,8 +64,10 @@ class TrainingCombination:
     def initialize_optimizer(self, model: nn.Module) -> optim.Optimizer:
         return self.optimizer_class(model.parameters(), **self.optimizer_params)
 
-    def initialize_scheduler(self, optimizer: optim.Optimizer) -> LRScheduler:
-        return self.scheduler_class(optimizer, **self.scheduler_params)
+    def initialize_scheduler(self, optimizer: optim.Optimizer) -> Optional[LRScheduler]:
+        if self.scheduler_class is not None:
+            return self.scheduler_class(optimizer, **self.scheduler_params)
+        return None
 
     def get_config(self) -> TrainingConfig:
         tc = TrainingConfig(

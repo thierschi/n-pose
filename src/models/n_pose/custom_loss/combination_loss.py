@@ -4,8 +4,8 @@ import torch.nn as nn
 class CombinationLoss(nn.Module):
     def __init__(self, l1, l2, w1=1, w2=1, added_direction=False):
         super(CombinationLoss, self).__init__()
-        self.l1 = l1
-        self.l2 = l2
+        self.l1 = l1()
+        self.l2 = l2()
         self.w1 = w1
         self.w2 = w2
         self.added_direction = added_direction
