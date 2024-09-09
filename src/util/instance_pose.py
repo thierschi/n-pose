@@ -5,7 +5,7 @@ import numpy as np
 from .vector import normalize_vector
 
 if TYPE_CHECKING:
-    from data.unity_data import Keypoint
+    from ..data.unity_data import Keypoint
 
 
 def get_keypoint_usability(kps: List['Keypoint']):

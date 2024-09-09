@@ -7,8 +7,8 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 from shapely.geometry import Polygon
 
-from data.unity_data import Capture
-from util import point_to_cam
+from ..data.unity_data import Capture
+from ..util import point_to_cam
 
 
 class CoordType(Enum):

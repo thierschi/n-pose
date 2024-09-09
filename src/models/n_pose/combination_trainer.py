@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from torch.utils.data import DataLoader
 
-from util import Logger, TrainingResult, EpochLogEntry
+from ...util import Logger, TrainingResult, EpochLogEntry
 from .dataset import SoloData
 from .metrics import ATE, AOE
 from .trainer import Trainer

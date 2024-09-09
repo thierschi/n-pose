@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from util.color import RGBAColor
+from ...util import RGBAColor
 from .label import Label
 
 

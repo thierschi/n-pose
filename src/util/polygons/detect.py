@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from shapely.geometry import Polygon
 
-from util.color import RGBColor, RGBAColor
+from ..color import RGBColor, RGBAColor
 
 
 def detect_polygons(mask: cv2.typing.MatLike, float_precision=6):

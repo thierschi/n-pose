@@ -4,8 +4,8 @@ import shutil
 import cv2
 from progressbar import ProgressBar
 
-from data.unity_data import UnityData
-from util import generate_random_split, detect_colored_polygons
+from ..unity_data import UnityData
+from ...util import generate_random_split, detect_colored_polygons
 from .data_directory import create_yolo_data_dir
 
 
