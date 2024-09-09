@@ -17,6 +17,7 @@ class Trainer:
     def use_device(self, device):
         self.device = device
         self.model.to(self.device)
+        print(f"Using device {device}")
 
     def use_best_device(self):
         if torch.cuda.is_available():

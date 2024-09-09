@@ -71,7 +71,7 @@ class TrainingCombination:
 
     def get_config(self) -> TrainingConfig:
         tc = TrainingConfig(
-            data=f"{"add_dir" if self.add_direction else "dir"}/{self.data_size[0]}/{self.data_size[1]}",
+            data=f"{'add_dir' if self.add_direction else 'dir'}/{self.data_size[0]}/{self.data_size[1]}",
             model=self.model_desc,
             loss_fn=self.loss_fn_desc,
             optimizer=self.optimizer_desc,
