@@ -3,6 +3,7 @@
 /logs/
 /playground/
 /models/
+.venv/
 
 # Ignore files ending with .pt
 *.pt
