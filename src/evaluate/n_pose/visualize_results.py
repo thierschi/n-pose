@@ -3,10 +3,10 @@ import numpy as np
 import torch
 from torch import nn
 
-from data.n_pose_conversion.annotation_conversion import keypoints_to_vector, i_segmentation_to_vector, \
+from ...data.n_pose_conversion.annotation_conversion import keypoints_to_vector, i_segmentation_to_vector, \
     position_and_rotation_to_vector
-from data.unity_data import UnityData
-from visualize import Annotator, CoordType
+from ...data.unity_data import UnityData
+from ...visualize import Annotator, CoordType
 
 
 def visualize_n_pose(model: nn.Module, data: UnityData, sequence: int, instance_id: int, device="cpu"):

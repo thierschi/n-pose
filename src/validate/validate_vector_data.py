@@ -2,8 +2,8 @@ import os
 
 import numpy as np
 
-from data.unity_data import UnityData
-from visualize import Annotator, CoordType
+from ..data.unity_data import UnityData
+from ..visualize import Annotator, CoordType
 
 
 def split_row(row: np.ndarray, kp_v_size: int, seg_v_size: int):

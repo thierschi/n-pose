@@ -3,11 +3,11 @@ from typing import List
 import cv2
 import numpy as np
 
-from data.unity_data import Keypoint, KeypointValue, InstanceSegmentationInstance
-from util import get_keypoint_usability, get_object_direction
-from util import get_polygon_boundary, detect_colored_polygons, simplify_polygon_group
-from util import normalize_vector
-from util import point_to_world
+from ..unity_data import Keypoint, KeypointValue, InstanceSegmentationInstance
+from ...util import get_keypoint_usability, get_object_direction
+from ...util import get_polygon_boundary, detect_colored_polygons, simplify_polygon_group
+from ...util import normalize_vector
+from ...util import point_to_world
 
 
 def keypoints_to_vector(kp_value: KeypointValue, v_size: int, image_size=(1920, 1080)):

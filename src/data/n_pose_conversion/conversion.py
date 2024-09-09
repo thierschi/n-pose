@@ -3,7 +3,7 @@ from typing import Type
 
 from tqdm import tqdm
 
-from data.unity_data import UnityData
+from ..unity_data import UnityData
 from .vector_converter import VectorConverter
 
 

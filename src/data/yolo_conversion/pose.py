@@ -4,8 +4,8 @@ from typing import List
 
 from progressbar import ProgressBar
 
-from data.unity_data import Capture, UnityData
-from util import generate_random_split
+from ..unity_data import Capture, UnityData
+from ...util import generate_random_split
 from .data_directory import create_yolo_data_dir
 
 

@@ -1,14 +1,15 @@
 import os
 
-import progressbar as pb
 import torch
 
 
 class Trainer:
-    def __init__(self, model, train_loader, test_loader=None):
+    def __init__(self, model, train_loader, test_loader=None, metrics=None, callback=None):
         self.model = model
         self.train_loader = train_loader
         self.test_loader = test_loader
+        self.metrics = metrics if metrics is not None else []
+        self.callback = callback
 
         self.device = torch.device('cpu')
         self.model.to(self.device)
@@ -26,51 +27,82 @@ class Trainer:
             self.use_device(torch.device('cpu'))
 
     def train(self, num_epochs, criterion, optimizer, scheduler=None):
-        with pb.ProgressBar(max_value=num_epochs, widgets=[
-            "Epoch: ", pb.Counter(), "/", str(num_epochs), " ",
-            pb.Percentage(), ' ',
-            pb.Timer(), ' ',
-            pb.ETA(), ' ',
-            pb.DynamicMessage('train_loss'),
-            " ",
-            pb.DynamicMessage('test_loss')
-        ]) as bar:
-            for epoch in range(num_epochs):
-                self.model.train()
-                running_loss = 0.0
+        for epoch in range(num_epochs):
+            self.model.train()
+            running_loss = 0.0
 
-                for inputs, targets in self.train_loader:
-                    inputs, targets = inputs.to(self.device), targets.to(self.device)
-                    optimizer.zero_grad()
-                    outputs = self.model(inputs)
-                    loss = criterion(outputs, targets)
-                    loss.backward()
-                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
-                    optimizer.step()
-                    running_loss += loss.item()
+            # Reset metrics
+            for metric in self.metrics:
+                metric.reset()
 
-                avg_train_loss = running_loss / len(self.train_loader)
-                # print(f'Epoch {epoch + 1}/{num_epochs}, Train Loss: {avg_train_loss:.4f}')
+            for inputs, targets in self.train_loader:
+                inputs, targets = inputs.to(self.device), targets.to(self.device)
+                optimizer.zero_grad()
+                outputs = self.model(inputs)
+                loss = criterion(outputs, targets)
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+                optimizer.step()
+                running_loss += loss.item()
 
-                avg_test_loss = 0
-                if self.test_loader:
-                    avg_test_loss = self.evaluate(criterion)
-                    # print(f'Epoch {epoch + 1}/{num_epochs}, Test Loss: {avg_test_loss:.4f}')
-                    if scheduler:
-                        scheduler.step(avg_test_loss)
+                # Update metrics
+                for metric in self.metrics:
+                    metric.update(outputs, targets)
 
-                bar.update(epoch + 1, train_loss=avg_train_loss, test_loss=avg_test_loss)
+            avg_train_loss = running_loss / len(self.train_loader)
+            train_metrics = [metric.compute() for metric in self.metrics]
+
+            avg_test_loss = 0
+            val_metrics = []
+            if self.test_loader:
+                avg_test_loss, val_metrics = self.evaluate(criterion)
+
+            if scheduler:
+                scheduler.step(avg_test_loss)
+
+            # Invoke callback with training values
+            if self.callback:
+                self.callback([epoch, avg_train_loss, avg_test_loss] + train_metrics + val_metrics)
 
     def evaluate(self, criterion):
         self.model.eval()
         test_loss = 0.0
+        val_metrics = [metric.__class__() for metric in self.metrics]  # Create new instances for validation metrics
+
         with torch.no_grad():
             for inputs, targets in self.test_loader:
                 inputs, targets = inputs.to(self.device), targets.to(self.device)
                 outputs = self.model(inputs)
                 loss = criterion(outputs, targets)
                 test_loss += loss.item()
-        return test_loss / len(self.test_loader)
+
+                # Update validation metrics
+                for metric in val_metrics:
+                    metric.update(outputs, targets)
+
+        avg_test_loss = test_loss / len(self.test_loader)
+        val_metrics = [metric.compute() for metric in val_metrics]
+        return avg_test_loss, val_metrics
+
+    def evaluate_with_loader(self, data_loader, criterion):
+        self.model.eval()
+        test_loss = 0.0
+        val_metrics = [metric.__class__() for metric in self.metrics]  # Create new instances for validation metrics
+
+        with torch.no_grad():
+            for inputs, targets in data_loader:
+                inputs, targets = inputs.to(self.device), targets.to(self.device)
+                outputs = self.model(inputs)
+                loss = criterion(outputs, targets)
+                test_loss += loss.item()
+
+                # Update validation metrics
+                for metric in val_metrics:
+                    metric.update(outputs, targets)
+
+        avg_test_loss = test_loss / len(data_loader)
+        val_metrics = [metric.compute() for metric in val_metrics]
+        return avg_test_loss, val_metrics
 
     def save(self, file_path):
         directory = os.path.dirname(file_path)

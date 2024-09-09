@@ -2,7 +2,7 @@ from pathlib import Path
 
 from progressbar import ProgressBar
 
-from data.unity_data import UnityData
+from ..unity_data import UnityData
 from .annotation_conversion import *
 
 

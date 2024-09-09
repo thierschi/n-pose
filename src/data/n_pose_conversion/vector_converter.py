@@ -3,8 +3,8 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 from data.unity_data import Capture
-from util import get_keypoint_usability, point_to_world, get_object_direction, normalize_vector
-from util.polygons import detect_colored_polygons, simplify_polygon_group, get_polygon_boundary
+from ...util import get_keypoint_usability, point_to_world, get_object_direction, normalize_vector
+from ...util.polygons import detect_colored_polygons, simplify_polygon_group, get_polygon_boundary
 
 
 class VectorConverter:
