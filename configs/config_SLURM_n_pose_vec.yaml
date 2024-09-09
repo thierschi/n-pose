@@ -5,4 +5,4 @@ args:
   export: NONE
   C: a100_40
   
-  job: ./scripts/yolo/run.sh
+  job: ./scripts/n_pose_vec/run.sh
