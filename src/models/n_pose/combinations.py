@@ -7,7 +7,7 @@ from .training_combination import TrainingCombination
 
 BATCH_SIZE = 256
 DATA_SIZE = [10, 100]
-EPOCHS = [50, 100, 250]
+EPOCHS = [50, 100, 300]
 
 
 def get_losses():
