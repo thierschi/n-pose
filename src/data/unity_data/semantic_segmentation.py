@@ -1,17 +1,26 @@
 from dataclasses import dataclass
 from typing import List
 
-from ...util import RGBAColor
 from .label import Label
+from ...util import RGBAColor
 
 
 @dataclass(frozen=True)
 class SemanticSegmentationInstance:
+    """
+    SemanticSegmentationInstance represents a single instance in a Unity semantic segmentation annotation.
+    """
     label: Label
     color: RGBAColor
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[Label]) -> 'SemanticSegmentationInstance':
+        """
+        Create a SemanticSegmentationInstance from a dictionary.
+        :param _dict:
+        :param labels: List of all labels in UnityData
+        :return: A SemanticSegmentationInstance object
+        """
         label = None
         color = None
 
@@ -31,6 +40,9 @@ class SemanticSegmentationInstance:
 
 @dataclass(frozen=True)
 class SemanticSegmentationAnnotation:
+    """
+    SemanticSegmentationAnnotation represents a Unity semantic segmentation annotation.
+    """
     type_name = 'type.unity.com/unity.solo.SemanticSegmentationAnnotation'
 
     id: str
@@ -42,7 +54,14 @@ class SemanticSegmentationAnnotation:
     instances: List[SemanticSegmentationInstance]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label], path: str):
+    def from_dict(_dict: dict, labels: List[Label], path: str) -> 'SemanticSegmentationAnnotation':
+        """
+        Create a SemanticSegmentationAnnotation from a dictionary.
+        :param _dict:
+        :param labels: List of all labels in UnityData
+        :param path: Base path of sequence
+        :return: A SemanticSegmentationAnnotation object
+        """
         instances = [SemanticSegmentationInstance.from_dict(instance, labels) for instance in
                      _dict['instances']] if 'instances' in _dict else []
 

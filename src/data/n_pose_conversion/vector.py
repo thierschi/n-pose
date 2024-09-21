@@ -2,20 +2,34 @@ from pathlib import Path
 
 from progressbar import ProgressBar
 
-from ..unity_data import UnityData
 from .annotation_conversion import *
+from ..unity_data import UnityData
 
 
 def DEPRECATED_unity_to_n_pose(data: UnityData, folder_path: str, file_name: str, kp_vector_size: int,
-                               seg_vector_size: int, precision=6):
+                               seg_vector_size: int, precision=6) -> str:
+    """
+    DEPRECATED: Use unity_to_n_pose instead
+    Converts UnityData to a CSV file with n-pose vectors
+
+    :param data: UnityData
+    :param folder_path: folder path where .csv will be saved
+    :param file_name: file_name of the .csv
+    :param kp_vector_size: Size of the keypoint vectors
+    :param seg_vector_size: Size of the segmentation vectors
+    :param precision: presicion of the float values
+    :return: full file path of the saved .csv
+    """
     assert kp_vector_size % 2 == 0
     assert seg_vector_size % 2 == 0
 
     folder_path = folder_path.rstrip("/")
 
+    # Create folder path and all parents
     folder_path = Path(folder_path)
     folder_path.mkdir(parents=True, exist_ok=True)
 
+    # Append index to filename of file with same name exists
     file_path = folder_path / f"{file_name}.csv"
     index = 0
     while file_path.exists():
@@ -32,6 +46,7 @@ def DEPRECATED_unity_to_n_pose(data: UnityData, folder_path: str, file_name: str
 
     with ProgressBar(max_value=max_sequence) as bar:
         with open(file_path, "w") as file:
+            # Write csv header
             header = ['seq', 'pos_x', 'pos_y', 'pos_z', 'dir_x', 'dir_y', 'dir_z']
             header_l = []
             header_r = []
@@ -45,6 +60,7 @@ def DEPRECATED_unity_to_n_pose(data: UnityData, folder_path: str, file_name: str
             header.extend(header_r)
             file.write(f"{', '.join(header)}\n")
 
+            # Write sequence data
             for i in range(max_sequence):
                 bar.next()
 
@@ -110,6 +126,7 @@ def DEPRECATED_unity_to_n_pose(data: UnityData, folder_path: str, file_name: str
 
                     file.write(f"{', '.join([str(round(x, precision)) for x in vector])}\n")
 
+    # Print sequences that were skipped and why
     for msg in skipping_msgs:
         print(msg)
     print(f"Skipped {len(skipping_msgs)}/{total_instances} instances in total")

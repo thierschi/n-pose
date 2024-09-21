@@ -3,16 +3,27 @@ from typing import Type
 
 from tqdm import tqdm
 
-from ..unity_data import UnityData
 from .vector_converter import VectorConverter
+from ..unity_data import UnityData
 
 
 def unity_to_n_pose(data: UnityData, file_path: str, converter_class: Type[VectorConverter], kp_v_size: int = 10,
                     seg_v_size: int = 100,
-                    precision=6):
+                    precision=6) -> str:
+    """
+    Converts UnityData to n-pose format and saves it to a .csv file.
+    :param data: Data to convert
+    :param file_path: Path where to save the .csv file. (Must include extension)
+    :param converter_class: Uninitialised class of the converter to use
+    :param kp_v_size: Vector size for keypoints
+    :param seg_v_size: Vector size for instance segmentation
+    :param precision: Floating point precision
+    :return: Path to the saved file (different from file_path if file already existed)
+    """
     assert kp_v_size % 2 == 0
     assert seg_v_size % 2 == 0
 
+    # Create parent directories if they don't exist
     file_path = Path(file_path)
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -30,6 +41,7 @@ def unity_to_n_pose(data: UnityData, file_path: str, converter_class: Type[Vecto
     bar = tqdm(total=data.len_sequences, desc="Converting")
 
     with open(file_path, "w") as file:
+        # Write csv header
         header = ['seq', 'id', 'pos_x', 'pos_y', 'pos_z', 'dir_x', 'dir_y', 'dir_z']
         header_l = []
         header_r = []
@@ -45,10 +57,11 @@ def unity_to_n_pose(data: UnityData, file_path: str, converter_class: Type[Vecto
 
         for seq in data.sequence_ids:
             bar.update()
-            
+
             left_capture = None
             right_capture = None
 
+            # Find the left and right captures for the current sequence
             for capture in data.get_sequence(seq):
                 if capture.sequence == seq and capture.id == "RightCam":
                     right_capture = capture
@@ -65,7 +78,7 @@ def unity_to_n_pose(data: UnityData, file_path: str, converter_class: Type[Vecto
 
                 converter = converter_class()
 
-                try:
+                try:  # Obligatory try-except block to catch any errors during conversion
                     converter.use(left_capture, instance_id)
                     converter.keypoints(kp_v_size)
                     converter.instance_segmentation(seg_v_size)
@@ -84,6 +97,7 @@ def unity_to_n_pose(data: UnityData, file_path: str, converter_class: Type[Vecto
                     skipping_msgs.append(f"Skipping {seq} {instance_id} because of error: {e}")
                     continue
 
+                # Combine and write the vectors
                 vector = [seq, instance_id]
                 vector.extend(converter.output_vector)
                 vector.extend(converter.input_vector)

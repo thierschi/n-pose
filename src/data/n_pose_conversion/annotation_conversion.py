@@ -10,7 +10,15 @@ from ...util import normalize_vector
 from ...util import point_to_world
 
 
-def keypoints_to_vector(kp_value: KeypointValue, v_size: int, image_size=(1920, 1080)):
+def keypoints_to_vector(kp_value: KeypointValue, v_size: int, image_size=(1920, 1080)) -> np.ndarray:
+    """
+    Convert keypoint annotation to vector
+
+    :param kp_value: An instance's keypoints
+    :param v_size: Target vector size
+    :param image_size: Dimension of the image to norm keypoint locations
+    :return: KeypointValue as a vector
+    """
     vector = np.zeros(v_size)
 
     for i, kp in enumerate(kp_value.keypoints):
@@ -23,10 +31,20 @@ def keypoints_to_vector(kp_value: KeypointValue, v_size: int, image_size=(1920, 
     return vector
 
 
-def i_segmentation_to_vector(instance: InstanceSegmentationInstance, seg_map: cv2.typing.MatLike, v_size: int):
+def i_segmentation_to_vector(instance: InstanceSegmentationInstance, seg_map: cv2.typing.MatLike,
+                             v_size: int) -> np.ndarray | None:
+    """
+    Convert instance segmentation annotation to vector
+
+    :param instance: Instance of instance seg annotation
+    :param seg_map:  map on which the instance is present
+    :param v_size: Target vector size
+    :return: InstanceSegmentationInstance as a vector, None if failed
+    """
     assert v_size % 2 == 0
     target = v_size // 2
 
+    # Detect normed polygons on map that match the instance's color
     _, polygons = detect_colored_polygons(seg_map, instance.color)
 
     try:
@@ -49,7 +67,15 @@ def i_segmentation_to_vector(instance: InstanceSegmentationInstance, seg_map: cv
     return vector
 
 
-def position_and_rotation_to_vector(obj_kps: List[Keypoint], camera_pos, camera_rot):
+def position_and_rotation_to_vector(obj_kps: List[Keypoint], camera_pos, camera_rot) -> np.ndarray | None:
+    """
+    Get position and orientation of object using instance's keypoints
+
+    :param obj_kps: The instance's keypoints
+    :param camera_pos: The camera's position in the capture
+    :param camera_rot: The camera's rotation in the capture
+    :return: A vector representing the object's position and orientation, None if failed
+    """
     obj_kps.sort(key=lambda x: x.index)
     kp_usability = get_keypoint_usability(obj_kps)
 
