@@ -5,6 +5,10 @@ from typing import Optional
 
 @dataclass
 class TrainingConfig:
+    """
+    Dataclass that holds the configuration for a training run to log.
+    """
+
     data: str
     model: str
     loss_fn: str
@@ -30,6 +34,9 @@ class TrainingConfig:
 
 @dataclass
 class TrainingResult:
+    """
+    Dataclass that holds the results of a training run to log.
+    """
     train_loss: float
     val_loss: float
     train_ATE: float
@@ -52,6 +59,9 @@ class TrainingResult:
 
 @dataclass
 class EpochLogEntry:
+    """
+    Dataclass that holds the results of a single epoch to log.
+    """
     epoch: int
     train_loss: float
     val_loss: float
@@ -74,6 +84,11 @@ class EpochLogEntry:
 
 
 class Logger:
+    """
+    Class to log training runs and results
+    """
+
+    # Constants
     _META_FILE_NAME = "training_meta.csv"
     _LOG_FILE_NAME = "training.csv"
 

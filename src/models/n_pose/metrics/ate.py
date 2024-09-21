@@ -23,7 +23,11 @@ class ATE:
         self.total_error += error
         self.count += predicted.size(0)
 
-    def compute(self):
+    def compute(self) -> float:
+        """
+        Compute the Average Translation Error (ATE) over all previously added samples.
+        :return: The ATE value.
+        """
         if self.count == 0:
             return 0.0
         return self.total_error / self.count

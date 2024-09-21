@@ -3,6 +3,10 @@ import torch.nn as nn
 
 
 class EuclideanLoss(nn.Module):
+    """
+    Loss function that computes the Euclidean distance between two tensors.
+    """
+
     def __init__(self):
         super(EuclideanLoss, self).__init__()
 

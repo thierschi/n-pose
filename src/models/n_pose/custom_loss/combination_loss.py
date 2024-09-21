@@ -2,6 +2,10 @@ import torch.nn as nn
 
 
 class CombinationLoss(nn.Module):
+    """
+    Loss function that combines two losses with different weights.
+    """
+
     def __init__(self, l1, l2, w1=1, w2=1, added_direction=False):
         super(CombinationLoss, self).__init__()
         self.l1 = l1()
@@ -17,6 +21,7 @@ class CombinationLoss(nn.Module):
         pos_target = target[:, :3]
         dir_target = target[:, 3:]
 
+        # If added_direction is True last 3 elements of output and target are second point
         if self.added_direction:
             point2_output = pos_output + dir_output
             point2_target = pos_target + dir_target

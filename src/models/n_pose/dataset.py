@@ -6,6 +6,10 @@ from torch.utils.data import Dataset
 
 
 class SoloData(Dataset):
+    """
+    Dataset class for the solo pose estimation data.
+    """
+
     def __init__(self, xy: np.ndarray, vec_sizes: List[int], add_direction=False):
         assert len(vec_sizes) == 2
         assert 2 + 6 + vec_sizes[0] * 2 + vec_sizes[1] * 2 == xy.shape[1]
@@ -17,6 +21,7 @@ class SoloData(Dataset):
 
         y = xy[:, :6]
         if add_direction:
+            # If add directions is true, last 3 elements are a second point
             new_y = []
             for i in range(y.shape[0]):
                 p1 = y[i, :3]

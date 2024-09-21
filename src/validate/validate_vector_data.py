@@ -30,6 +30,14 @@ def convert_vector_coordinates(points: np.ndarray, img_width: int, img_height: i
 
 
 def validate_vector_data(data: UnityData, v_data_path: str, kp_v_size: int, seg_v_size: int):
+    """
+    Used to validate the vector data by visualizing the encoded data for visual confirmation
+    :param data: UnityData that is represented by the vector data
+    :param v_data_path: Path to the vector data
+    :param kp_v_size: Size of the keypoint vector
+    :param seg_v_size: Size of the segment vector
+    :return:
+    """
     assert os.path.exists(v_data_path)
 
     vec_data = np.loadtxt(v_data_path, delimiter=',', skiprows=1).astype(np.float32)
@@ -44,8 +52,8 @@ def validate_vector_data(data: UnityData, v_data_path: str, kp_v_size: int, seg_
             kps = kp_left if is_left else kp_right
             seg = seg_left if is_left else seg_right
 
-            kp_points = convert_vector_coordinates(kps, c.dimension[0], c.dimension[1])
-            seg_points = convert_vector_coordinates(seg, c.dimension[0], c.dimension[1])
+            kp_points = convert_vector_coordinates(kps, int(c.dimension[0]), int(c.dimension[1]))
+            seg_points = convert_vector_coordinates(seg, int(c.dimension[0]), int(c.dimension[1]))
 
             a = (Annotator(c)
                  .capture_info()
