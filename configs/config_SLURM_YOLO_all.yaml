@@ -5,4 +5,4 @@ args:
   export: NONE
   C: a100_40
   
-  job: ./scripts/yolo/run.sh
+  job: ./scripts/yolo/run_yolo_all.sh
