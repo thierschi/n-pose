@@ -6,13 +6,21 @@ from .label import Label
 
 @dataclass
 class Keypoint:
+    """
+    Keypoint represents a single keypoint in Unity
+    """
     index: int
     location: List[float]
     camera_cartesian_location: List[float]
     state: int
 
     @staticmethod
-    def from_dict(_dict: dict):
+    def from_dict(_dict: dict) -> 'Keypoint':
+        """
+        Create a Keypoint from a dictionary.
+        :param _dict:
+        :return: A Keypoint object
+        """
         return Keypoint(_dict['index'],
                         _dict['location'],
                         _dict['cameraCartesianLocation'],
@@ -21,13 +29,22 @@ class Keypoint:
 
 @dataclass
 class KeypointValue:
+    """
+    KeypointValue represents all keypoints for a single instance in Unity
+    """
     instance_id: int
     label: Label
     pose: str
     keypoints: List[Keypoint]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[Label]) -> 'KeypointValue':
+        """
+        Create a KeypointValue from a dictionary.
+        :param _dict:
+        :param labels: List of all labels in UnityData
+        :return: A  KeypointValue object
+        """
         label = None
 
         for label in labels:
@@ -45,6 +62,9 @@ class KeypointValue:
 
 @dataclass
 class KeypointAnnotation:
+    """
+    KeypointAnnotation represents a Unity keypoint annotation
+    """
     type_name = 'type.unity.com/unity.solo.KeypointAnnotation'
 
     id: str
@@ -54,7 +74,13 @@ class KeypointAnnotation:
     values: List[KeypointValue]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[Label]) -> 'KeypointAnnotation':
+        """
+        Create a KeypointAnnotation from a dictionary.
+        :param _dict:
+        :param labels: List of all labels in UnityData
+        :return: A KeypointAnnotation object
+        """
         values = [KeypointValue.from_dict(value, labels) for value in
                   _dict['values']] if 'values' in _dict else []
 
@@ -71,5 +97,9 @@ class KeypointAnnotation:
             return None
         return item[0]
 
-    def ids(self):
+    def ids(self) -> List[int]:
+        """
+        Get all instance ids in the annotation
+        :return: List of instance IDs
+        """
         return [v.instance_id for v in self.values]

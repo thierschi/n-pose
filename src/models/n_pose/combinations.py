@@ -1,10 +1,16 @@
 import torch
 from torch import nn
 
+from .custom_fcn import CustomFCN
 from .custom_loss import RMSELoss, CombinationLoss, CosineSimilarityLoss, EuclideanLoss
-from .models import CustomFCN
 from .training_combination import TrainingCombination
 
+"""
+This file is used to build a list combinations of models, 
+losses and optimizers to be tested in the training process.
+"""
+
+# Constants
 BATCH_SIZE = 256
 DATA_SIZE = [10, 100]
 EPOCHS = [50, 100, 300]

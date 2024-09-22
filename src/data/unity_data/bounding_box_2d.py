@@ -6,13 +6,22 @@ from .label import Label
 
 @dataclass(frozen=True)
 class BoundingBox2DValue:
+    """
+    BoundingBox2DValue represents a single 2D bounding box in Unity.
+    """
     instance_id: int
     label: Label
     origin: List[float]
     dimension: List[float]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[Label]) -> 'BoundingBox2DValue':
+        """
+        Create a BoundingBox2DValue from a dictionary.
+        :param _dict:
+        :param labels: List of all labels in UnityData
+        :return: A BoundingBox2DValue object
+        """
         label = None
 
         for label in labels:
@@ -28,6 +37,9 @@ class BoundingBox2DValue:
 
 @dataclass(frozen=True)
 class BoundingBox2DAnnotation:
+    """
+    BoundingBox2DAnnotation represents a Unity 2D bounding box annotation.
+    """
     type_name = 'type.unity.com/unity.solo.BoundingBox2DAnnotation'
 
     id: str
@@ -36,7 +48,13 @@ class BoundingBox2DAnnotation:
     values: List[BoundingBox2DValue]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[Label]) -> 'BoundingBox2DAnnotation':
+        """
+        Create a BoundingBox2DAnnotation from a dictionary.
+        :param _dict:
+        :param labels: List of all labels in UnityData
+        :return: A BoundingBox2DAnnotation object
+        """
         values = [BoundingBox2DValue.from_dict(value, labels) for value in
                   _dict['values']] if 'values' in _dict else []
 
@@ -52,5 +70,9 @@ class BoundingBox2DAnnotation:
             return None
         return item[0]
 
-    def ids(self):
+    def ids(self) -> List[int]:
+        """
+        Get all instance ids in the annotation.
+        :return: List of instance ids
+        """
         return [v.instance_id for v in self.values]

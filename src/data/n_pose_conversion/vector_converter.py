@@ -8,6 +8,10 @@ from ...util.polygons import detect_colored_polygons, simplify_polygon_group, ge
 
 
 class VectorConverter:
+    """
+    Base class for converting UnityData to n-pose vectors
+    """
+
     def __init__(self):
         self._capture = None
         self._instance_id = None
@@ -20,6 +24,11 @@ class VectorConverter:
         assert self._instance_id is not None
 
     def use(self, capture: Capture, instance_id: int):
+        """
+        Set the capture and instance id to be used for current conversion
+        :param capture:
+        :param instance_id:
+        """
         self._capture = capture
         self._instance_id = instance_id
 
@@ -35,7 +44,12 @@ class VectorConverter:
     def was_successful(self):
         return self._was_successful
 
-    def keypoints(self, v_size: int):
+    def keypoints(self, v_size: int) -> np.ndarray:
+        """
+        Add keypoints of set instance to input vector
+        :param v_size: Target vector size
+        :return: KeypointValue as a vector
+        """
         self._assert_requirements()
         assert v_size % 2 == 0
 
@@ -52,11 +66,17 @@ class VectorConverter:
         self._input_vector.extend(vector.tolist())
         return vector
 
-    def instance_segmentation(self, v_size: int):
+    def instance_segmentation(self, v_size: int) -> np.ndarray | None:
+        """
+        Add instance segmentation of set instance to input vector
+        :param v_size: Target vector size
+        :return: InstanceSegmentationInstance as a vector, None if failed
+        """
         self._assert_requirements()
         assert v_size % 2 == 0
         target = v_size // 2
 
+        # Detect normed polygons on map that match the instance's color
         seg_map = cv2.imread(self._capture.instance_segmentation.file_path)
         instance = self._capture.instance_segmentation[self._instance_id]
         _, polygons = detect_colored_polygons(seg_map, instance.color)
@@ -91,10 +111,18 @@ class VectorConverter:
 
 
 class KeypointBasedVectorConverter(VectorConverter):
+    """
+    Vector converter that uses keypoints to calculate position and direction
+    """
+
     def __init__(self):
         super().__init__()
 
-    def position(self):
+    def position(self) -> np.ndarray | None:
+        """
+        Add position of set instance to output vector
+        :return: Position as vector, None if failed
+        """
         self._assert_requirements()
         kp_value = self._capture.keypoints[self._instance_id]
 
@@ -105,6 +133,7 @@ class KeypointBasedVectorConverter(VectorConverter):
         obj_kps.sort(key=lambda x: x.index)
         kp_usability = get_keypoint_usability(obj_kps)
 
+        # Check if center keypoint is usable
         points = [kp.camera_cartesian_location for kp in obj_kps]
         m, *_ = np.array(points)
         m_usable, *_ = kp_usability
@@ -119,7 +148,11 @@ class KeypointBasedVectorConverter(VectorConverter):
         self._output_vector.extend(position.tolist())
         return position
 
-    def direction(self):
+    def direction(self) -> np.ndarray | None:
+        """
+        Add direction of set instance to output vector
+        :return: Direction as vector, None if failed
+        """
         self._assert_requirements()
         kp_value = self._capture.keypoints[self._instance_id]
 
@@ -130,6 +163,7 @@ class KeypointBasedVectorConverter(VectorConverter):
         obj_kps.sort(key=lambda x: x.index)
         kp_usability = get_keypoint_usability(obj_kps)
 
+        # Check if center keypoint is usable
         points = [kp.camera_cartesian_location for kp in obj_kps]
         m, *_ = np.array(points)
         m_usable, *_ = kp_usability
@@ -139,6 +173,7 @@ class KeypointBasedVectorConverter(VectorConverter):
         if not m_usable or direction is None:
             self._was_successful = False
             return None
+        # Direction is converted to world space for correct normalisation
         position = m
         direction_ep = position + direction
 
@@ -153,10 +188,18 @@ class KeypointBasedVectorConverter(VectorConverter):
 
 
 class TransformerBasedVectorConverter(VectorConverter):
+    """
+    Vector converter that uses KIARATransform to calculate position and direction
+    """
+
     def __init__(self):
         super().__init__()
 
-    def position(self):
+    def position(self) -> np.ndarray:
+        """
+        Add position of set instance to output vector
+        :return: Position as vector
+        """
         self._assert_requirements()
         t = self._capture.transforms[self._instance_id]
         pos = t.position
@@ -164,7 +207,11 @@ class TransformerBasedVectorConverter(VectorConverter):
         self._output_vector.extend(pos)
         return pos
 
-    def direction(self):
+    def direction(self) -> np.ndarray:
+        """
+        Add direction of set instance to output vector
+        :return: direction as vector
+        """
         self._assert_requirements()
         t = self._capture.transforms[self._instance_id]
 

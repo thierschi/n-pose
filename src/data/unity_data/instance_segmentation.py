@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
-from ...util import RGBAColor
 from .label import Label
+from ...util import RGBAColor
 
 
 @dataclass(frozen=True)
@@ -32,6 +32,9 @@ class InstanceSegmentationInstance:
 
 @dataclass(frozen=True)
 class InstanceSegmentationAnnotation:
+    """
+    InstanceSegmentationAnnotation represents a Unity instance segmentation annotation.
+    """
     type_name = 'type.unity.com/unity.solo.InstanceSegmentationAnnotation'
 
     id: str
@@ -43,7 +46,14 @@ class InstanceSegmentationAnnotation:
     instances: List[InstanceSegmentationInstance]
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label], path: str):
+    def from_dict(_dict: dict, labels: List[Label], path: str) -> 'InstanceSegmentationAnnotation':
+        """
+        Create a InstanceSegmentationAnnotation from a dictionary.
+        :param _dict:
+        :param labels: List of all labels in UnityData
+        :param path: Base path for capture, i.e. the path of the sequence folder
+        :return: A InstanceSegmentationAnnotation object
+        """
         instances = [InstanceSegmentationInstance.from_dict(instance, labels) for instance in
                      _dict['instances']] if 'instances' in _dict else []
 
@@ -62,5 +72,9 @@ class InstanceSegmentationAnnotation:
             return None
         return item[0]
 
-    def ids(self):
+    def ids(self) -> List[int]:
+        """
+        Get a list of all instance IDs in the annotation.
+        :return: List of instance IDs
+        """
         return [v.instance_id for v in self.instances]

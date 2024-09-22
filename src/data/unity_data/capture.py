@@ -13,6 +13,9 @@ from .transform import TransformAnnotation
 
 @dataclass(frozen=True)
 class Capture:
+    """
+    Capture represents a single capture of a sequence in UnityData.
+    """
     id: str
     sequence: int
     description: str
@@ -34,13 +37,21 @@ class Capture:
     transforms: TransformAnnotation
 
     @staticmethod
-    def from_dict(_dict: dict, labels: List[Label]):
+    def from_dict(_dict: dict, labels: List[Label]) -> 'Capture':
+        """
+        Create a Capture from a dictionary.
+        :param _dict:
+        :param labels: List of all labels in UnityData
+        :return: A Capture object
+        """
         path = _dict['path']
         annotations = {}
 
         for annotation in _dict['annotations']:
             annotations[annotation['@type']] = annotation
 
+        # For each annotation type,
+        # check if it exists in the annotations dictionary and create the annotation object
         instance_segmentation = None if InstanceSegmentationAnnotation.type_name not in annotations else \
             InstanceSegmentationAnnotation.from_dict(annotations[InstanceSegmentationAnnotation.type_name],
                                                      labels, path)

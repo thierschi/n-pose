@@ -5,6 +5,9 @@ import numpy as np
 
 @dataclass(frozen=True)
 class RGBColor:
+    """
+    RGB Color class
+    """
     r: int
     g: int
     b: int
@@ -18,6 +21,9 @@ class RGBColor:
 
 @dataclass(frozen=True)
 class RGBAColor:
+    """
+    RGBA Color class
+    """
     r: int
     g: int
     b: int
@@ -29,7 +35,12 @@ class RGBAColor:
     def to_np_array(self):
         return np.array(self.to_array())
 
-    def to_rgb(self, bg: RGBColor = RGBColor(0, 0, 0)):
+    def to_rgb(self, bg: RGBColor = RGBColor(0, 0, 0)) -> RGBColor:
+        """
+        Convert the color to an RGB color
+        :param bg: Background color
+        :return: RGBColor
+        """
         src = np.array([self.r, self.g, self.b, self.a])
         bg = np.array([bg.r, bg.g, bg.b])
 

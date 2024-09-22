@@ -18,6 +18,10 @@ class CoordType(Enum):
 
 
 class ColorGenerator:
+    """
+    Color generator class, to generate distinct colors for instances
+    """
+
     def __init__(self):
         self.colors = []
         self.index = 0
@@ -31,6 +35,10 @@ class ColorGenerator:
         ]
 
     def next(self):
+        """
+        Get the next distinct color
+        :return: Next color
+        """
         if self.index < len(self.primary_colors):
             color = self.primary_colors[self.index]
         else:
@@ -47,6 +55,9 @@ class ColorGenerator:
 
 
 class Annotator:
+    """
+    Annotator class to annotate images with bounding boxes, keypoints, lines, arrows, etc.
+    """
     __DEFAULT_COLOR = (255, 0, 0)
 
     def __init__(self, capture: Capture):
@@ -60,9 +71,13 @@ class Annotator:
         self.__init_projection_matrix()
 
     def __init_projection_matrix(self):
+        """
+        Use the captures keypoints to solve for the projection matrix
+        """
         if self.__capture.keypoints is None or len(self.__capture.keypoints.values) == 0:
             return
 
+        # Collect all points from all keypoint annotation values
         camera_points = []
         image_points = []
         for kpv in self.__capture.keypoints.values:
@@ -79,6 +94,7 @@ class Annotator:
                 image_points.append(np.array([int(kp.location[0]), int(kp.location[1])]))
 
         if len(camera_points) == 0 or len(image_points) == 0:
+            # We need a min amount of points to solve for the projection matrix
             self.__projection_matrix = np.ones((3, 4))
             cv2.putText(self.__img, "Too few keypoints for projection", (10, self.__img.shape[0] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
@@ -90,6 +106,7 @@ class Annotator:
         a = []
         b = []
 
+        # Solve for the projection matrix
         for i in range(len(camera_points)):
             x, y, z, _ = camera_points[i]
             u, v = image_points[i]
@@ -101,12 +118,18 @@ class Annotator:
         a = np.array(a)
         b = np.array(b)
 
+        # The solving actually happens here
         m_projection = np.linalg.lstsq(a, b, rcond=None)[0]
         m_projection = np.append(m_projection, 1).reshape(3, 4)
 
         self.__projection_matrix = m_projection
 
     def __project_point(self, point):
+        """
+        Project a point using the projection matrix to image coordinates
+        :param point:
+        :return: Projected point as coords on the image
+        """
         point = np.array(point)
         point = np.append(point, 1)
 
@@ -116,6 +139,11 @@ class Annotator:
         return projected[:2].astype(int)
 
     def __convert_point(self, point, point_type: CoordType):
+        """
+        Convert a point to the desired coordinate system
+        :param point:
+        :param point_type:
+        """
         point = np.array(point)
         if point_type == CoordType.WORLD:
             point = point_to_cam(point, self.__capture.position, self.__capture.rotation)

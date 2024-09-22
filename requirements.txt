@@ -1,0 +1,12 @@
+ultralytics
+torch
+opencv-python
+numpy
+matplotlib
+alphashape
+shapely
+tqdm
+scipy
+progressbar2
+scikit-learn
+pandas

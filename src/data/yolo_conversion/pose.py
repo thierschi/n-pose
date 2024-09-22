@@ -4,12 +4,18 @@ from typing import List
 
 from progressbar import ProgressBar
 
+from .data_directory import create_yolo_data_dir
 from ..unity_data import Capture, UnityData
 from ...util import generate_random_split
-from .data_directory import create_yolo_data_dir
 
 
-def get_pose_annotations_for_capture(capture: Capture, precision: int = 6):
+def get_pose_annotations_for_capture(capture: Capture, precision: int = 6) -> List[str]:
+    """
+    Get the annotations for a single capture in the format required for YOLO training.
+    :param capture: The capture to get the annotations for.
+    :param precision: Floating point precision
+    :return: Annotations for the capture as strings
+    """
     annotations = []
     img_width = capture.dimension[0]
     img_height = capture.dimension[1]
@@ -38,11 +44,23 @@ def get_pose_annotations_for_capture(capture: Capture, precision: int = 6):
     return annotations
 
 
-def unity_to_yolo_pose(unity_data: UnityData, _path: str, kpts: int, flip_idx: List[int], include_test: bool = False,
-                       precision: int = 6):
+def unity_to_yolo_pose(unity_data: UnityData, _path: str, n_keypoints: int, flip_idx: List[int],
+                       include_test: bool = False,
+                       precision: int = 6) -> str:
+    """
+    Convert Unity data to YOLO pose format.
+    :param unity_data: The data to convert
+    :param _path: The path to the directory to save the data to
+    :param n_keypoints: Number of keypoints
+    :param flip_idx: List if indices describing how keypoints can be flipped
+    :param include_test: Whether to include a test set
+    :param precision: Floating point precision
+    :return: Path to the yaml file
+    """
     path, yaml_path = create_yolo_data_dir(_path, include_test)
 
     with open(yaml_path, "w") as f:
+        # Write metadata
         f.write(f"path: {os.path.abspath(_path)}\n")
         f.write(f"train: train\n")
         f.write(f"val: val\n")
@@ -50,13 +68,14 @@ def unity_to_yolo_pose(unity_data: UnityData, _path: str, kpts: int, flip_idx: L
             f.write(f"test: test\n")
 
         f.write('\n')
-        f.write(f'kpt_shape: [{kpts},3]\n')
+        f.write(f'kpt_shape: [{n_keypoints},3]\n')
         f.write(f'flip_idx: {flip_idx}\n')
 
         f.write("names:\n")
         for label in unity_data.labels:
             f.write(f"    {label.id}: {label.name}\n")
 
+    # Collect captures with valid annotations
     valid_captures = [capture for capture in unity_data.captures if
                       capture.bounding_boxes_2d is not None and capture.keypoints is not None]
 
@@ -71,7 +90,7 @@ def unity_to_yolo_pose(unity_data: UnityData, _path: str, kpts: int, flip_idx: L
             shutil.copyfile(capture.file_path,
                             os.path.join(path, s, f'{i}.{capture.file_path.split(".")[-1]}'))
 
-            annotations = get_pose_annotations_for_capture(capture)
+            annotations = get_pose_annotations_for_capture(capture, precision=precision)
             with open(os.path.join(path, s, f'{i}.txt'), "w") as f:
                 for annotation in annotations:
                     f.write(f"{annotation}\n")

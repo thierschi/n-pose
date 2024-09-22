@@ -8,7 +8,13 @@ if TYPE_CHECKING:
     from ..data.unity_data import Keypoint
 
 
-def get_keypoint_usability(kps: List['Keypoint']):
+def get_keypoint_usability(kps: List['Keypoint']) -> List[bool]:
+    """
+    Get the usability of the keypoints. A keypoint is usable
+    if it has a non-zero camera cartesian location and a non-zero state.
+    :param kps: List of keypoints
+    :return: Usability of the keypoints as list
+    """
     kp_usability = []
     for kp in kps:
         usable = False
@@ -21,7 +27,14 @@ def get_keypoint_usability(kps: List['Keypoint']):
     return kp_usability
 
 
-def get_object_direction(obj_kps: List['Keypoint']):
+def get_object_direction(obj_kps: List['Keypoint']) -> np.ndarray | None:
+    """
+    Get the direction of the object from the keypoints.
+    This is done by calulating the double-cross product of the
+    two keypoints and the middle keypoint.
+    :param obj_kps:
+    :return:
+    """
     obj_kps.sort(key=lambda x: x.index)
     kp_usability = get_keypoint_usability(obj_kps)
 
@@ -44,7 +57,7 @@ def get_object_direction(obj_kps: List['Keypoint']):
         a = bl
         b = br
         c = m if m_usable else fl if fl_usable else fr if fr_usable else None
-        inversion_needed = True
+        inversion_needed = True  # Inversion needed because the back keypoints are in the opposite direction
 
     if a is None or b is None or c is None:
         return None

@@ -21,6 +21,7 @@ class AOE:
         predicted = predicted[:, -3:]
         ground_truth = ground_truth[:, -3:]
 
+        # If added_direction is True, the last three elements are a second point
         if self.added_direction:
             predicted = predicted[:, 3:] - predicted[:, :3]
             ground_truth = ground_truth[:, 3:] - ground_truth[:, :3]
@@ -36,7 +37,11 @@ class AOE:
         self.total_error += angular_error.sum().item()
         self.count += predicted.size(0)
 
-    def compute(self):
+    def compute(self) -> float:
+        """
+        Compute the Average Orientation Error (AOE) over all previously added samples.
+        :return: The AOE value.
+        """
         if self.count == 0:
             return 0.0
         return self.total_error / self.count

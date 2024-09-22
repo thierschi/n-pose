@@ -7,11 +7,17 @@ from .label import Label
 
 
 class UnityData:
+    """
+    UnityData represents a collection of captures from Unity.
+    """
     data_path: str
     labels: List[Label]
     sequences: Dict[int, List[Capture]]
 
     def read_labels(self):
+        """
+        Read labels from annotation_definitions.json.
+        """
         with open(f"{self.data_path}/annotation_definitions.json") as f:
             data = json.load(f)
             annotation_definitions = data['annotationDefinitions']
@@ -36,6 +42,10 @@ class UnityData:
         self.labels = labels
 
     def read_captures(self):
+        """
+        Read captures from frame_data.json files.
+        """
+        # Find all frame_data.json files in the sequences
         frame_data_files = glob.glob(self.data_path + '/**/*frame_data.json', recursive=True)
         frame_data_files.sort(key=lambda x: int(x.split('/')[-2].split('.')[-1]))
 
@@ -53,6 +63,7 @@ class UnityData:
                     capture['path'] = '/'.join(file.split('/')[:-1])
                     captures.append(capture)
 
+        # Collect sequences for efficient access
         self.sequences = {}
         for capture in captures:
             c = Capture.from_dict(capture, self.labels)
@@ -74,7 +85,12 @@ class UnityData:
     def sequence_ids(self):
         return list(self.sequences.keys())
 
-    def get_sequence(self, sequence: int):
+    def get_sequence(self, sequence: int) -> List[Capture]:
+        """
+        Get all captures in a sequence.
+        :param sequence:
+        :return: List of Captures
+        """
         return self.sequences[sequence]
 
     @property
