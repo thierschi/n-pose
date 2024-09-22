@@ -25,7 +25,7 @@ For segmentation and keypoint detection, I used [YOLO](https://docs.ultralytics.
 - TQDM `pip install tqdm`
 - Ultralytics `pip install ultralytics`
 
-> 💡This is also listed in the `requirements.txt` file.
+> 💡This is also listed in the `requirements.txt` file, thus it can be installed using `pip install -r requirements.txt`.
 
 ## Usage
 
