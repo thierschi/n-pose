@@ -2,7 +2,7 @@
 
 This is the repository for my bachelor thesis. The goal of this thesis is
 to recognize surgical tools in action. I proposed a new method (n-pose)
-which tries to estimate an objects posed given a polygon describing the
+which tries to estimate an object's pose given a polygon describing the
 object's segmentation and a list of keypoints.
 
 For segmentation and keypoint detection, I used [YOLO](https://docs.ultralytics.com/).
@@ -45,7 +45,7 @@ export PYTHONPATH=$PYTHONPATH:/path/to/n-pose/src
 
 ### Train YOLO
 
-For training of the YOLO model's the scripts in `scripts/YOLO` can be used.
+For training of the YOLO models, the scripts in `scripts/YOLO` can be used.
 `train_yolo_seg.py` converts the data for segmentation and trains the `YOLOv8x-seg` model. `train_yolo_pose.py` converts
 the data for keypoint detection and trains the `YOLOv8x-pose` model. `train_yolo.py` trains both models.
 
@@ -81,7 +81,7 @@ python3.12 scripts/n-pose/train_n_pose.py
 >
 > - `training_meta.csv`: Contains each combination that was trained along with its metrics.
 > - `training.csv`: Contains the logs for each epoch of all trainings. These logs contain the id of the model in the
-    meta fil.
+    meta file.
 > - `models/`: Contains the trained models to be used later. The models are saved as `model_{id}.pth`.
 
 ### Training on the a SLURM cluster.
